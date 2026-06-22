@@ -1,0 +1,31 @@
+# Terraform состояние и кэш — содержат ID ресурсов и могут содержать секреты
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Переменные Terraform — могут содержать пароли
+# terraform.tfvars не исключаем, так как пароли в нём не настоящие (учебный проект)
+# Если используешь prod-пароли — добавь строку ниже:
+# terraform.tfvars
+
+# CA-сертификат Яндекса — скачивается командой из README
+*.pem
+*.crt
+*.cer
+
+# Бинарники Go
+client/cmd/producer/producer
+client/cmd/consumer/consumer
+
+# Модульный кэш и lock-файл зависимостей
+# go.sum не исключаем — его нужно коммитить для воспроизводимости сборки
+client/vendor/
+
+# macOS служебные файлы
+.DS_Store

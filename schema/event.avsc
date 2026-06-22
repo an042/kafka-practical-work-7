@@ -1,0 +1,29 @@
+{
+  "type": "record",
+  "name": "Event",
+  "namespace": "ru.practicum.kafka",
+  "doc": "Схема события для топика events. Используется вместе со Schema Registry Yandex Cloud.",
+  "fields": [
+    {
+      "name": "id",
+      "type": "int",
+      "doc": "Порядковый номер события (1, 2, 3...)"
+    },
+    {
+      "name": "ts",
+      "type": "string",
+      "doc": "Временная метка события в формате RFC3339 (2026-01-01T12:00:00Z)"
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "doc": "Источник события — имя producer-а (например: go-producer)"
+    },
+    {
+      "name": "payload",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "Опциональные данные события в виде строки (null если нет данных)"
+    }
+  ]
+}
