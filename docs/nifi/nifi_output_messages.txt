@@ -1,0 +1,20 @@
+=== /tmp/kafka-output/073b04b2-039c-4be1-8d67-4eac42ccc21e ===
+{"id":9,"ts":"2026-06-23T16:31:03+03:00","source":"go-producer"}
+=== /tmp/kafka-output/1a8f6bae-d409-43e4-8b7e-af405a7f8521 ===
+{"id":2,"ts":"2026-06-23T16:31:02+03:00","source":"go-producer"}
+=== /tmp/kafka-output/1ef27a7c-3f4b-44ee-b1ce-635ea0bbd724 ===
+{"id":5,"ts":"2026-06-23T16:31:03+03:00","source":"go-producer"}
+=== /tmp/kafka-output/2537aa68-5c45-4400-8a92-71bd5bc3fcee ===
+{"id":4,"ts":"2026-06-23T16:31:03+03:00","source":"go-producer"}
+=== /tmp/kafka-output/263e0e52-be0d-49d4-b521-52e20755ef6a ===
+{"id":7,"ts":"2026-06-23T16:31:03+03:00","source":"go-producer"}
+=== /tmp/kafka-output/3ad9e45d-87e2-4547-bfa4-89fea2717648 ===
+{"id":3,"ts":"2026-06-23T16:31:02+03:00","source":"go-producer"}
+=== /tmp/kafka-output/654aca13-51b7-4ced-8b27-c96ad78996b2 ===
+{"id":10,"ts":"2026-06-23T16:31:03+03:00","source":"go-producer"}
+=== /tmp/kafka-output/d0dc8f45-4a12-460a-bf87-37dfbce12c8e ===
+{"id":1,"ts":"2026-06-23T16:31:02+03:00","source":"go-producer"}
+=== /tmp/kafka-output/dc1dbf7f-5896-4dd4-9171-d43d5a863154 ===
+{"id":6,"ts":"2026-06-23T16:31:03+03:00","source":"go-producer"}
+=== /tmp/kafka-output/f22bb7fb-a5f9-44ee-9313-5da231b399b5 ===
+{"id":8,"ts":"2026-06-23T16:31:03+03:00","source":"go-producer"}
