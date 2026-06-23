@@ -8,7 +8,8 @@
 |-----------|--------|
 | Kafka (Managed) | 3.9 (Yandex Cloud) |
 | Terraform | ≥ 1.0 + yandex-cloud/yandex 0.209.0 |
-| Go client | 1.21, IBM/sarama v1.43.3 |
+| Go client | 1.21, IBM/sarama v1.43.3, goavro/v2 v2.15.0 |
+| Avro-сериализация | Confluent Wire Format (magic byte + schema_id + avro binary) |
 | SASL механизм | SCRAM-SHA-512 |
 | Транспорт | SASL_SSL, порт 9091 |
 | Schema Registry | Встроен в YC Managed Kafka, порт 443 (HTTPS) |
@@ -138,15 +139,19 @@ curl -u "consumer:ConsumerPass1" \
 ### Шаг 4. Проверить работу Kafka (producer и consumer)
 
 > **Важно про SCRAM в Go:**  
-> IBM/sarama не включает реализацию SCRAM из коробки (в отличие от Python/Java).  
-> Нужен внешний пакет `github.com/xdg-go/scram` и адаптер `client/scram/scram.go`.
+> IBM/sarama не включает реализацию SCRAM из коробки. Нужен внешний пакет `github.com/xdg-go/scram` и адаптер `client/scram/scram.go`.
+
+> **Avro-сериализация:**  
+> Producer кодирует сообщения через `github.com/linkedin/goavro/v2` и оборачивает их в **Confluent Wire Format**: `0x00` (magic byte) + 4 байта schema_id (big-endian) + avro binary. Схема из `schema/event.avsc` встроена в код producer'а. Schema Registry используется реально: consumer по schema_id знает, каким кодеком декодировать сообщение.
 
 ```bash
 brew install go  # macOS
 
 cd client
-go mod tidy      # Скачивает все зависимости, генерирует go.sum
+go mod tidy      # Скачивает все зависимости, включая goavro/v2
 ```
+
+Зарегистрировать схему в Schema Registry (Шаг 3) **до** запуска producer, чтобы получить schema_id.
 
 Запустить producer:
 
@@ -155,9 +160,19 @@ export KAFKA_BROKERS="rc1a-xxx.mdb.yandexcloud.net:9091,rc1b-xxx.mdb.yandexcloud
 export KAFKA_PRODUCER_PASSWORD="ProducerPass1"
 export KAFKA_CA_CERT="$HOME/kafka-certs/YandexInternalRootCA.crt"
 export KAFKA_TOPIC="events"
+export KAFKA_SCHEMA_ID="1"   # ID, возвращённый Schema Registry при регистрации схемы
 
 cd client
 go run ./cmd/producer/
+```
+
+Ожидаемый вывод:
+
+```
+Producer подключён. Отправляю 10 сообщений в топик "events" (Avro, schema_id=1)...
+Сообщение 1 отправлено → partition=1 offset=0 (avro, 35 байт)
+Сообщение 2 отправлено → partition=1 offset=1 (avro, 35 байт)
+...
 ```
 
 Запустить consumer (в отдельном терминале):
