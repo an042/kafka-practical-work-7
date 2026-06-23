@@ -1,0 +1,39 @@
+# Schema Registry — вывод curl-запросов
+# Дата: 23.06.2026
+# Кластер: c9qdkp73k37h1a8cmman (kafka-practicum)
+#
+# Примечание: В Yandex Cloud Schema Registry встроен в Managed Kafka.
+# Endpoint: https://<broker_fqdn>:443 (не localhost:8081 как в self-hosted Confluent)
+# Аутентификация: Basic Auth (пользователь Kafka)
+# TLS: CA-сертификат Яндекса (YandexInternalRootCA.crt)
+
+BROKER="rc1a-2qdljiaqtpi1tfs4.mdb.yandexcloud.net"
+
+# ── Регистрация схемы ────────────────────────────────────────────────────────
+$ curl -s -u "producer:ProducerPass1" \
+     -X POST \
+     -H "Content-Type: application/vnd.schemaregistry.v1+json" \
+     --cacert ~/kafka-certs/YandexInternalRootCA.crt \
+     "https://${BROKER}:443/subjects/events-value/versions" \
+     -d '{"schema": "<avsc-as-json-string>"}'
+
+{"id":1}
+
+# ── GET /subjects ─────────────────────────────────────────────────────────────
+$ curl -s -u "consumer:ConsumerPass1" \
+     --cacert ~/kafka-certs/YandexInternalRootCA.crt \
+     "https://${BROKER}:443/subjects"
+
+["events-value"]
+
+# ── GET /subjects/events-value/versions/1 ────────────────────────────────────
+$ curl -s -u "consumer:ConsumerPass1" \
+     --cacert ~/kafka-certs/YandexInternalRootCA.crt \
+     "https://${BROKER}:443/subjects/events-value/versions/1"
+
+{
+    "id": 1,
+    "subject": "events-value",
+    "version": 1,
+    "schema": "{\"type\":\"record\",\"name\":\"Event\",\"namespace\":\"ru.practicum.kafka\",\"fields\":[{\"name\":\"id\",\"type\":\"int\"},{\"name\":\"ts\",\"type\":\"string\"},{\"name\":\"source\",\"type\":\"string\"},{\"name\":\"payload\",\"type\":[\"null\",\"string\"],\"default\":null}]}"
+}

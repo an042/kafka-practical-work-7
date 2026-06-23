@@ -1,0 +1,27 @@
+# Логи consumer — запуск 23.06.2026
+
+# Команда запуска:
+# export KAFKA_BROKERS="rc1a-2qdljiaqtpi1tfs4.mdb.yandexcloud.net:9091,rc1b-7selsp2dkm29t4mf.mdb.yandexcloud.net:9091,rc1d-0qbd0jj6hlenb9g7.mdb.yandexcloud.net:9091"
+# export KAFKA_CONSUMER_PASSWORD="ConsumerPass1"
+# export KAFKA_CA_CERT="$HOME/kafka-certs/YandexInternalRootCA.crt"
+# export KAFKA_TOPIC="events"
+# export KAFKA_GROUP="my-consumer-group"
+# go run ./cmd/consumer/
+
+2026/06/23 09:22:17 Consumer запущён. Группа: "my-consumer-group", топик: "events". Ctrl+C для выхода.
+2026/06/23 09:22:19 Consumer group setup: member=sarama-69f19316-8a62-4775-94c6-06613be31573, generation=1
+2026/06/23 09:22:19 Начинаю читать: топик=events, партиция=2, начальный offset=-1
+2026/06/23 09:22:20 Начинаю читать: топик=events, партиция=0, начальный offset=-1
+2026/06/23 09:22:20 Начинаю читать: топик=events, партиция=1, начальный offset=-1
+
+# После запуска второго producer в отдельном терминале:
+2026/06/23 09:24:54 Получено: partition=1 offset=4 key=1 value={"id":1,"ts":"2026-06-23T09:24:53+03:00","source":"go-producer"}
+2026/06/23 09:24:54 Получено: partition=1 offset=5 key=2 value={"id":2,"ts":"2026-06-23T09:24:53+03:00","source":"go-producer"}
+2026/06/23 09:24:54 Получено: partition=2 offset=4 key=3 value={"id":3,"ts":"2026-06-23T09:24:54+03:00","source":"go-producer"}
+2026/06/23 09:24:54 Получено: partition=1 offset=6 key=4 value={"id":4,"ts":"2026-06-23T09:24:54+03:00","source":"go-producer"}
+2026/06/23 09:24:54 Получено: partition=2 offset=5 key=5 value={"id":5,"ts":"2026-06-23T09:24:54+03:00","source":"go-producer"}
+2026/06/23 09:24:54 Получено: partition=2 offset=6 key=6 value={"id":6,"ts":"2026-06-23T09:24:54+03:00","source":"go-producer"}
+2026/06/23 09:24:54 Получено: partition=0 offset=2 key=7 value={"id":7,"ts":"2026-06-23T09:24:54+03:00","source":"go-producer"}
+2026/06/23 09:24:54 Получено: partition=1 offset=7 key=8 value={"id":8,"ts":"2026-06-23T09:24:54+03:00","source":"go-producer"}
+2026/06/23 09:24:54 Получено: partition=2 offset=7 key=9 value={"id":9,"ts":"2026-06-23T09:24:54+03:00","source":"go-producer"}
+2026/06/23 09:24:54 Получено: partition=0 offset=3 key=10 value={"id":10,"ts":"2026-06-23T09:24:54+03:00","source":"go-producer"}

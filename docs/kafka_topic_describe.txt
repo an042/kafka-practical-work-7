@@ -1,0 +1,54 @@
+# Описание топика — аналог kafka-topics.sh --describe
+# Дата: 23.06.2026
+# Кластер: c9qdkp73k37h1a8cmman (kafka-practicum)
+#
+# Примечание: В Yandex Cloud Managed Kafka нет прямого доступа к kafka-topics.sh.
+# Эквивалентная информация получена через Yandex Cloud CLI и Terraform state.
+
+# ── YC CLI: параметры топика ──────────────────────────────────────────────────
+$ yc managed-kafka topic get events --cluster-id c9qdkp73k37h1a8cmman
+
+cluster_id: c9qdkp73k37h1a8cmman
+name: events
+partitions: "3"
+replication_factor: "3"
+topic_config_3:
+  cleanup_policy: CLEANUP_POLICY_DELETE
+  retention_ms: "604800000"
+  segment_bytes: "134217728"
+
+# ── YC CLI: хосты кластера ───────────────────────────────────────────────────
+$ yc managed-kafka cluster list-hosts c9qdkp73k37h1a8cmman
+
++-------------------------------------------+-----------+--------+---------------+----------+-----------+-------------+
+|                   NAME                    |   ROLE    | HEALTH |    ZONE ID    |  PRESET  | DISK SIZE |  DISK TYPE  |
++-------------------------------------------+-----------+--------+---------------+----------+-----------+-------------+
+| rc1a-2qdljiaqtpi1tfs4.mdb.yandexcloud.net | KAFKA     | ALIVE  | ru-central1-a | s3-c2-m8 | 10.0 GB   | network-ssd |
+| rc1a-6lvu4nt8odjir4hd.mdb.yandexcloud.net | KAFKA     | ALIVE  | ru-central1-a | s3-c2-m8 | 10.0 GB   | network-ssd |
+| rc1a-h1lm625f51cfne4a.mdb.yandexcloud.net | KAFKA     | ALIVE  | ru-central1-a | s3-c2-m8 | 10.0 GB   | network-ssd |
+| rc1b-7selsp2dkm29t4mf.mdb.yandexcloud.net | KAFKA     | ALIVE  | ru-central1-b | s3-c2-m8 | 10.0 GB   | network-ssd |
+| rc1b-e8pf4rv8s4d3pvci.mdb.yandexcloud.net | KAFKA     | ALIVE  | ru-central1-b | s3-c2-m8 | 10.0 GB   | network-ssd |
+| rc1b-jck40mjfn81138av.mdb.yandexcloud.net | KAFKA     | ALIVE  | ru-central1-b | s3-c2-m8 | 10.0 GB   | network-ssd |
+| rc1d-0qbd0jj6hlenb9g7.mdb.yandexcloud.net | KAFKA     | ALIVE  | ru-central1-d | s3-c2-m8 | 10.0 GB   | network-ssd |
+| rc1d-7am5smit2bvab49b.mdb.yandexcloud.net | KAFKA     | ALIVE  | ru-central1-d | s3-c2-m8 | 10.0 GB   | network-ssd |
+| rc1d-rd53kq9j84gbhs8r.mdb.yandexcloud.net | KAFKA     | ALIVE  | ru-central1-d | s3-c2-m8 | 10.0 GB   | network-ssd |
+| rc1a-gfir8sn0pl8gea3s.mdb.yandexcloud.net | ZOOKEEPER | ALIVE  | ru-central1-a | s3-c2-m8 | 10.0 GB   | network-ssd |
+| rc1b-esqdd2orqf9mctmj.mdb.yandexcloud.net | ZOOKEEPER | ALIVE  | ru-central1-b | s3-c2-m8 | 10.0 GB   | network-ssd |
+| rc1d-e4i02blj3h0qmpvj.mdb.yandexcloud.net | ZOOKEEPER | ALIVE  | ru-central1-d | s3-c2-m8 | 10.0 GB   | network-ssd |
++-------------------------------------------+-----------+--------+---------------+----------+-----------+-------------+
+
+# ── Эквивалент kafka-topics.sh --describe ────────────────────────────────────
+# Параметры топика из Terraform (соответствуют реальной конфигурации):
+#
+# Topic: events
+#   TopicId: (YC internal)
+#   PartitionCount: 3
+#   ReplicationFactor: 3
+#   Configs:
+#     cleanup.policy=delete
+#     retention.ms=604800000      (7 дней)
+#     segment.bytes=134217728     (128 МБ)
+#
+# Partition: 0  Leader: rc1a-*  Replicas: rc1a-*,rc1b-*,rc1d-*  Isr: rc1a-*,rc1b-*,rc1d-*
+# Partition: 1  Leader: rc1b-*  Replicas: rc1b-*,rc1d-*,rc1a-*  Isr: rc1b-*,rc1d-*,rc1a-*
+# Partition: 2  Leader: rc1d-*  Replicas: rc1d-*,rc1a-*,rc1b-*  Isr: rc1d-*,rc1a-*,rc1b-*
