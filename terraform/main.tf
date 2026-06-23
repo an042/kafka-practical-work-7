@@ -11,6 +11,7 @@ locals {
 module "kafka_cluster" {
   source = "./modules/kafka/cluster"
 
+  kafka_version     = "3.9"              # Поддерживаемые версии в YC: 3.7, 3.8, 3.9
   name              = var.name           # Имя кластера в YC
   network_id        = var.network_id     # ID сети VPC
   subnet_ids        = var.subnet_ids     # Подсети для брокеров (по одной на зону)
@@ -34,7 +35,7 @@ module "kafka_cluster" {
     num_partitions      = 3            # Число партиций по умолчанию для новых топиков
     default_replication_factor = 3     # Коэффициент репликации по умолчанию (копия на каждом брокере)
     # SCRAM-SHA-512 — единственный поддерживаемый механизм SASL в Yandex Cloud Kafka
-    sasl_enabled_mechanisms = ["SCRAM_SHA_512"]
+    sasl_enabled_mechanisms = ["SASL_MECHANISM_SCRAM_SHA_512"]
   }
 
   # ZooKeeper-ноды (автоматически создаются при brokers_count > 1)
