@@ -1,17 +1,18 @@
 # Практическая работа 7 — Kafka в Yandex Cloud
 
-Развёртывание Apache Kafka на базе Yandex Cloud Managed Service for Apache Kafka.
+Развёртывание Apache Kafka на базе Yandex Cloud Managed Service for Apache Kafka с интеграцией Apache NiFi.
 
 ## Стек
 
 | Компонент | Версия |
 |-----------|--------|
-| Kafka (Managed) | 3.x (Yandex Cloud) |
+| Kafka (Managed) | 3.9 (Yandex Cloud) |
 | Terraform | ≥ 1.0 |
-| Yandex Cloud provider | ≥ 0.13 |
+| Yandex Cloud provider | 0.209.0 |
 | Go client | 1.21 |
 | SASL механизм | SCRAM-SHA-512 |
 | Транспорт | SASL_SSL, порт 9091 |
+| Apache NiFi | 1.28.1 (Docker) |
 
 ## Структура
 
@@ -27,13 +28,26 @@
 │       └── kafka/cluster/  # Модуль кластера (из стартового zip)
 ├── client/                 # Go клиент
 │   ├── go.mod
+│   ├── go.sum
 │   ├── scram/
 │   │   └── scram.go        # SCRAM-SHA-512 адаптер для sarama
 │   └── cmd/
 │       ├── producer/main.go
 │       └── consumer/main.go
-└── schema/
-    └── event.avsc          # Avro-схема сообщения
+├── schema/
+│   └── event.avsc          # Avro-схема сообщения
+├── nifi/                   # Apache NiFi (Задание 4)
+│   └── docker-compose.yml  # Запуск NiFi 1.28.1 в Docker
+└── docs/                   # Артефакты выполнения
+    ├── producer_logs.txt         # Вывод Go producer
+    ├── consumer_logs.txt         # Вывод Go consumer
+    ├── schema_registry_output.txt # curl к Schema Registry
+    ├── kafka_topic_describe.txt  # Описание топика и хостов кластера
+    ├── hardware_resources.md     # Конфигурация узлов кластера
+    └── nifi/
+        ├── nifi_integration.md       # Описание настройки NiFi, проблемы и решения
+        ├── nifi_output_messages.txt  # Сообщения, принятые NiFi из Kafka
+        └── flow.json.gz              # Экспорт конфигурации NiFi Flow
 ```
 
 ---
@@ -199,11 +213,77 @@ Consumer запущён. Группа: "my-consumer-group", топик: "events"
 
 ---
 
+---
+
+## Задание 4 — Apache NiFi (интеграция с Kafka)
+
+Apache NiFi запускается локально в Docker и читает сообщения из YC Kafka по SASL_SSL.
+
+### Флоу
+
+```
+ConsumeKafka_2_6 →[success]→ LogAttribute →[success]→ PutFile(/tmp/kafka-output)
+```
+
+### Запуск NiFi
+
+```bash
+# 1. Скачать CA-сертификат Яндекса
+mkdir -p nifi/certs
+curl -o nifi/certs/YandexInternalRootCA.crt \
+  https://storage.yandexcloud.net/cloud-certs/CA.pem
+
+# 2. Создать PKCS12 truststore через keytool
+#    (важно: openssl не подходит — Java требует тип trustedCertEntry)
+keytool -import \
+  -alias yandex-root-ca \
+  -file nifi/certs/YandexInternalRootCA.crt \
+  -keystore nifi/certs/truststore.p12 \
+  -storetype PKCS12 \
+  -storepass truststorepass \
+  -noprompt
+
+# 3. Запустить контейнер
+cd nifi && docker compose up -d
+# UI: http://localhost:8080/nifi  (admin / admin12345678)
+```
+
+### Controller Service — StandardSSLContextService
+
+Создаётся через **правый клик на холст → Configure → Controller Services** (не через меню ☰, там Management-scope, процессоры его не видят).
+
+| Параметр | Значение |
+|---|---|
+| Truststore Filename | `./conf/certs/truststore.p12` |
+| Truststore Password | `truststorepass` |
+| Truststore Type | `PKCS12` |
+| TLS Protocol | `TLS` |
+
+### Настройки ConsumeKafka_2_6
+
+| Параметр | Значение |
+|---|---|
+| Kafka Brokers | `rc1a-xxx.mdb.yandexcloud.net:9091,...` |
+| Topic Name(s) | `events` |
+| Group ID | `nifi-consumer-group` |
+| Security Protocol | `SASL_SSL` |
+| SASL Mechanism | `SCRAM-SHA-512` |
+| Username | `consumer` |
+| Password | `ConsumerPass1` |
+| SSL Context Service | `StandardSSLContextService` |
+
+### Результат
+
+После запуска Go producer NiFi принял 10 сообщений и записал в `/tmp/kafka-output/` — по одному файлу на сообщение. Подробности и вывод — в `docs/nifi/`.
+
+---
+
 ## Удаление кластера
 
 ```bash
 cd terraform
-terraform destroy   # Удаляет кластер, топик, пользователей (~2 минуты)
+export YC_TOKEN=$(yc iam create-token)  # токен живёт 1 час, обнови если устарел
+terraform destroy   # Удаляет кластер, топик, пользователей (~5 минут)
 ```
 
 **Внимание:** кластер тарифицируется пока запущен. Удаляй после завершения работы.
