@@ -7,7 +7,7 @@ locals {
 }
 
 # ─── Модуль: Kafka-кластер ────────────────────────────────────────────────────
-# Создаёт Managed Service for Apache Kafka с 3 брокерами и ZooKeeper
+# Создаёт Managed Service for Apache Kafka с 1 брокером на зону (3 зоны = 3 брокера итого) и ZooKeeper
 module "kafka_cluster" {
   source = "./modules/kafka/cluster"
 
@@ -16,7 +16,7 @@ module "kafka_cluster" {
   network_id        = var.network_id     # ID сети VPC
   subnet_ids        = var.subnet_ids     # Подсети для брокеров (по одной на зону)
   zones             = var.zones          # Зоны доступности брокеров
-  brokers_count     = var.brokers_count  # 3 брокера = отказоустойчивость при потере 1
+  brokers_count     = var.brokers_count  # 1 брокер × 3 зоны = 3 брокера итого (RF=3 покрывает все)
   folder_id         = local.folder_id    # Каталог для размещения кластера
   schema_registry   = var.schema_registry  # Включаем Schema Registry (нужен для задания 1)
   assign_public_ip  = true               # Публичный IP — доступ с локальной машины

@@ -15,6 +15,7 @@ go 1.21
 
 require (
 	github.com/IBM/sarama v1.43.3
+	github.com/linkedin/goavro/v2 v2.15.0
 	github.com/xdg-go/scram v1.1.2
 )
 

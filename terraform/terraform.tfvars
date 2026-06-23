@@ -7,8 +7,10 @@ folder_id = "b1gkkc5c6r2btrs6ch95"
 # Сеть default
 network_id = "enp7h15721pj53b44vn0"
 
-# Количество брокеров — по одному на зону
-brokers_count = 3
+# Количество брокеров на зону.
+# brokers_count=1 → 1 брокер × 3 зоны = 3 брокера итого (достаточно для RF=3).
+# brokers_count=3 → 3 × 3 = 9 брокеров — избыточно для учебного стенда.
+brokers_count = 1
 
 # Подсети: a, b, d (порядок совпадает с zones!)
 subnet_ids = [
